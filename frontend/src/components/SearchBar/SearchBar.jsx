@@ -17,6 +17,7 @@ export default function SearchBar({
           className="w-full text-xs bg-transparent py-[11px] outline-none"
           value={value}
           onChange={onChange}
+          clearSearch={clearSearch}
         />
 
         {value && (
