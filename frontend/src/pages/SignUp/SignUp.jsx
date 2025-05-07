@@ -3,7 +3,7 @@ import { useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import PasswordInput from "../../components/Input/PasswordInput";
 import { Link, useNavigate } from "react-router-dom";
-import validEmail from "../../utils/helper";
+import { validEmail } from "../../utils/helper";
 import axiosInstance from "../../utils/axiosinstance"
 
 export default function SignUp() {
@@ -15,6 +15,14 @@ export default function SignUp() {
 
   const navigate = useNavigate();
 
+  const validatePassword = (value) => {
+    const minLength = value.length >= 8;
+    const hasNumber = /\d/.test(value);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+
+    return minLength && hasNumber && hasSpecialChar;
+  };
+
   const handleSignUp = async (e) => {
     e.preventDefault();
 
@@ -23,35 +31,44 @@ export default function SignUp() {
       return;
     }
 
-    if (!(email)) {
-      setError("Invalid Email");
+    if (!validEmail(email)) {
+      setError("Invalid Email Address");
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      alert("Password does not meet the required criteria. Please ensure it is at least 8 characters long, includes a number, and a special character.");
+      setError("Password does not meet the required criteria.");
       return;
     }
 
     setError(""); 
 
-      try {
-        const response = await axiosInstance.post("/create-user", {
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          password: password
-        });
+    try {
+      const response = await axiosInstance.post("/create-user", {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim(),
+        password: password.trim()
+      });
 
-        if(response.data.error) {
-          setError(response.data.message);
-          return;
-        }
-
-        if(response.data.accessToken) {
-          localStorage.setItem("token", response.data.accessToken);
-          navigate("/dashboard");
-        }
-
-      } catch (error) {
-        console.log(error);
+      if (response.data.error) {
+        setError(response.data.message);
+        return;
       }
 
+      if (response.data.accessToken) {
+        localStorage.setItem("token", response.data.accessToken);
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+      console.error("SignUp error:", error);
+    }
   };
 
   return (

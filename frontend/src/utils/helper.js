@@ -1,7 +1,11 @@
 export const validEmail = (email) => {
-    const regex = /.+@.+\..+/;
-    return regex.test(email);
-}
+    const allowedDomains = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "icloud.com"];
+    const regex = /^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/;
+    if (!regex.test(email)) return false;
+
+    const domain = email.split("@")[1];
+    return allowedDomains.includes(domain);
+};
 
 export const getInitials = (name) => {
 

@@ -11,7 +11,7 @@ export default function Navbar({ userInfo, handleSearch, getAllNotes }) {
 
   const clearSearch = () => {
     setSearchQuery("");
-    getAllNotes();
+    getAllNotes && getAllNotes();
   };
 
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ export default function Navbar({ userInfo, handleSearch, getAllNotes }) {
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      searchQuery.trim() ? handleSearch(searchQuery) : getAllNotes();
+      searchQuery.trim() ? handleSearch(searchQuery) : getAllNotes && getAllNotes();
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
